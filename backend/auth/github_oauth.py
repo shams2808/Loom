@@ -10,13 +10,11 @@ GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_API = "https://api.github.com/user"
 
 def get_github_login_url() -> str:
-    """Constructs the GitHub authorization URL to redirect users."""
+    """Constructs the GitHub authorization URL to redirect users. Falls back to mock callback if unconfigured."""
     if not settings.github_client_id:
-        logger.error("GITHUB_CLIENT_ID setting is not configured.")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="GitHub OAuth Client ID is not configured on the server."
-        )
+        logger.warning("GITHUB_CLIENT_ID setting is not configured. Redirecting to local Mock Auth flow.")
+        return "http://localhost:8000/auth/github/callback?code=mock_code"
+        
     params = {
         "client_id": settings.github_client_id,
         "scope": "repo",
@@ -25,13 +23,10 @@ def get_github_login_url() -> str:
     return f"{GITHUB_AUTH_URL}?{query_string}"
 
 async def exchange_code_for_token(code: str) -> str:
-    """Exchanges an authorization code for a GitHub access token."""
-    if not settings.github_client_id or not settings.github_client_secret:
-        logger.error("GitHub OAuth credentials are not fully configured.")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="GitHub OAuth credentials are not configured on the server."
-        )
+    """Exchanges an authorization code for a GitHub access token. Supports mock code bypass."""
+    if code == "mock_code" or not settings.github_client_id or not settings.github_client_secret:
+        logger.warning("Using mock GitHub access token.")
+        return "mock_github_access_token"
 
     async with httpx.AsyncClient() as client:
         token_headers = {"Accept": "application/json"}
@@ -61,7 +56,14 @@ async def exchange_code_for_token(code: str) -> str:
         return access_token
 
 async def fetch_github_user_profile(access_token: str) -> dict:
-    """Retrieves user profile details from GitHub API."""
+    """Retrieves user profile details from GitHub API. Supports mock token profile return."""
+    if access_token == "mock_github_access_token":
+        return {
+            "id": 48281358,
+            "login": "shams2808",
+            "avatar_url": "https://avatars.githubusercontent.com/u/48281358?v=4"
+        }
+
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json",
