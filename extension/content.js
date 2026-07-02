@@ -130,13 +130,11 @@ function injectToggleBadge() {
   `;
 
   btn.addEventListener('mouseenter', () => {
-    btn.firstElementChild.style.background = '#a372ff';
     btn.firstElementChild.style.paddingRight = '12px';
   });
 
   btn.addEventListener('mouseleave', () => {
-    btn.firstElementChild.style.background = '#8a2be2';
-    btn.firstElementChild.style.paddingRight = '6px';
+    btn.firstElementChild.style.paddingRight = '8px';
   });
 
   btn.addEventListener('click', toggleSidebar);
@@ -148,6 +146,20 @@ function setupPanelListeners() {
   const closeBtn = shadowRoot.getElementById('loom-close-btn');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => setSidebarOpen(false));
+  }
+
+  const logoutBtn = shadowRoot.getElementById('loom-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logoutBtn.disabled = true;
+      chrome.runtime.sendMessage({
+        type: 'API_REQUEST',
+        path: '/auth/logout'
+      }, () => {
+        logoutBtn.disabled = false;
+        checkAuthAndRefresh();
+      });
+    });
   }
 
   const loginBtn = shadowRoot.getElementById('loom-login-btn');
@@ -193,6 +205,18 @@ function updateTheme() {
       wrapper.classList.add('loom-light');
     }
   }
+
+  // Update floating toggle badge theme (Monochrome)
+  const toggleBtn = document.getElementById('loom-toggle-badge-root')?.firstElementChild;
+  if (toggleBtn) {
+    if (isDarkMode()) {
+      toggleBtn.style.background = '#ffffff';
+      toggleBtn.style.color = '#0d1117';
+    } else {
+      toggleBtn.style.background = '#000000';
+      toggleBtn.style.color = '#ffffff';
+    }
+  }
 }
 
 
@@ -202,9 +226,9 @@ function checkAuthAndRefresh() {
     type: 'API_REQUEST',
     path: '/auth/me'
   }, (response) => {
-    const header = shadowRoot.getElementById('loom-header');
     const authBox = shadowRoot.getElementById('loom-auth-section');
     const contentBox = shadowRoot.getElementById('loom-mode-content');
+    const logoutBtn = shadowRoot.getElementById('loom-logout-btn');
     
     if (response && response.success && response.result && response.result.ok) {
       const user = response.result.data;
@@ -217,10 +241,12 @@ function checkAuthAndRefresh() {
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--border-color);
           " title="${user.github_username}" />
         `;
       }
+
+      if (logoutBtn) logoutBtn.style.display = 'flex';
       
       // Show content, hide login
       if (authBox) authBox.style.display = 'none';
@@ -232,6 +258,7 @@ function checkAuthAndRefresh() {
       // Unauthenticated
       const avatarContainer = shadowRoot.getElementById('loom-avatar-container');
       if (avatarContainer) avatarContainer.innerHTML = '';
+      if (logoutBtn) logoutBtn.style.display = 'none';
       
       if (authBox) authBox.style.display = 'flex';
       if (contentBox) contentBox.style.display = 'none';

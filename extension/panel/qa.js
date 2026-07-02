@@ -242,7 +242,7 @@
       const log = shadow.getElementById('loom-chat-log');
       if (log) {
         log.innerHTML = `
-          <div class="loom-message loom-message-system">
+          <div class="loom-chat-row loom-chat-row-system">
             <div class="loom-message-content">
               Hello! I am Loom. Ask me anything about this repository's codebase structure, implementation details, or where features are located.
             </div>
@@ -299,17 +299,19 @@
       // 2. Render User Message
       const log = shadow.getElementById('loom-chat-log');
       const userMsgDiv = document.createElement('div');
-      userMsgDiv.className = 'loom-message loom-message-user';
+      userMsgDiv.className = 'loom-chat-row loom-chat-row-user';
       userMsgDiv.innerHTML = `
         <div class="loom-message-content">${this.formatAnswerText(question)}</div>
+        <div class="loom-pfp-placeholder"></div>
       `;
       log.appendChild(userMsgDiv);
       this.scrollToBottom();
 
       // 3. Render Loading Indicator Bubble
       const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'loom-message loom-message-assistant loom-message-loading';
+      loadingDiv.className = 'loom-chat-row loom-chat-row-assistant loom-message-loading';
       loadingDiv.innerHTML = `
+        <div class="loom-pfp-placeholder"></div>
         <div class="loom-message-content">
           <div class="loom-chat-log-spinner">
             <span></span><span></span><span></span>
@@ -341,7 +343,7 @@
 
           // Render assistant reply
           const replyDiv = document.createElement('div');
-          replyDiv.className = 'loom-message loom-message-assistant';
+          replyDiv.className = 'loom-chat-row loom-chat-row-assistant';
           
           let citationsHtml = '';
           if (data.sources && data.sources.length > 0) {
@@ -359,6 +361,7 @@
           }
 
           replyDiv.innerHTML = `
+            <div class="loom-pfp-placeholder"></div>
             <div class="loom-message-content">
               ${this.formatAnswerText(data.answer)}
               ${citationsHtml}
@@ -368,13 +371,14 @@
         } else {
           // Render error bubble
           const errorDiv = document.createElement('div');
-          errorDiv.className = 'loom-message loom-message-assistant';
+          errorDiv.className = 'loom-chat-row loom-chat-row-assistant';
           
           const errorMsg = (response && response.result && response.result.data && response.result.data.error)
             ? response.result.data.error
             : "Sorry, I had trouble contacting the Loom backend. Ensure Uvicorn server is running locally.";
 
           errorDiv.innerHTML = `
+            <div class="loom-pfp-placeholder"></div>
             <div class="loom-message-content" style="color: #cf222e; border-color: rgba(207, 34, 46, 0.2); background: rgba(207, 34, 46, 0.05);">
               ⚠️ <strong>Error:</strong> ${errorMsg}
             </div>

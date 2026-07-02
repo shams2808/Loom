@@ -6,27 +6,29 @@
   --transition-speed: 0.3s;
   --panel-width: 380px;
 
-  /* HSL Tailored Palettes - Light Mode */
-  --light-bg-opaque: rgba(255, 255, 255, 0.82);
-  --light-bg-card: rgba(255, 255, 255, 0.9);
-  --light-border: rgba(210, 216, 222, 0.8);
+  /* HSL Tailored Palettes - Light Mode (Monochrome B&W) */
+  --light-bg-opaque: rgba(255, 255, 255, 0.88);
+  --light-bg-card: rgba(255, 255, 255, 1);
+  --light-border: #d0d7de;
   --light-text: #24292f;
   --light-text-muted: #57606a;
-  --light-accent: #7c22cf;
-  --light-accent-hover: #8a2be2;
-  --light-accent-light: rgba(138, 43, 226, 0.1);
-  --light-card-shadow: 0 8px 32px 0 rgba(138, 43, 226, 0.08);
+  --light-accent: #000000;
+  --light-accent-hover: #24292f;
+  --light-accent-light: rgba(0, 0, 0, 0.04);
+  --light-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --light-btn-text: #ffffff;
 
-  /* HSL Tailored Palettes - Dark Mode */
-  --dark-bg-opaque: rgba(13, 17, 23, 0.82);
-  --dark-bg-card: rgba(22, 27, 34, 0.9);
-  --dark-border: rgba(48, 54, 61, 0.8);
+  /* HSL Tailored Palettes - Dark Mode (Monochrome B&W) */
+  --dark-bg-opaque: rgba(13, 17, 23, 0.88);
+  --dark-bg-card: rgba(22, 27, 34, 1);
+  --dark-border: #30363d;
   --dark-text: #c9d1d9;
   --dark-text-muted: #8b949e;
-  --dark-accent: #a372ff;
-  --dark-accent-hover: #b388ff;
-  --dark-accent-light: rgba(163, 114, 255, 0.15);
-  --dark-card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --dark-accent: #ffffff;
+  --dark-accent-hover: #f0f6fc;
+  --dark-accent-light: rgba(255, 255, 255, 0.08);
+  --dark-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --dark-btn-text: #0d1117;
 }
 
 /* Base Panel Animations and Sidebar Wrapper */
@@ -64,6 +66,7 @@
   --accent-hover: var(--light-accent-hover);
   --accent-light: var(--light-accent-light);
   --shadow: var(--light-card-shadow);
+  --btn-text: var(--light-btn-text);
 }
 
 /* Dark Theme Variables Application */
@@ -81,6 +84,7 @@
   --accent-hover: var(--dark-accent-hover);
   --accent-light: var(--dark-accent-light);
   --shadow: var(--dark-card-shadow);
+  --btn-text: var(--dark-btn-text);
 }
 
 /* Scrollbar Styles */
@@ -117,20 +121,17 @@
 }
 
 .loom-header-logo {
-  filter: drop-shadow(0 0 4px var(--accent-color));
-  animation: logo-glow 3s infinite alternate;
+  animation: logo-pulse 3s infinite alternate;
 }
 
-@keyframes logo-glow {
-  from { filter: drop-shadow(0 0 2px var(--accent-color)); }
-  to { filter: drop-shadow(0 0 8px var(--accent-color)); }
+@keyframes logo-pulse {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
 }
 
 .loom-logo-text {
   font-weight: 800;
-  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-color);
 }
 
 .loom-repo-name {
@@ -149,7 +150,25 @@
 .loom-header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.loom-logout-btn {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.loom-logout-btn:hover {
+  color: var(--text-color);
+  background: var(--accent-light);
 }
 
 .loom-icon-btn {
@@ -159,9 +178,11 @@
   color: var(--text-color);
   font-size: 22px;
   line-height: 1;
-  padding: 0;
+  padding: 4px;
   opacity: 0.6;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .loom-icon-btn:hover {
@@ -230,15 +251,14 @@
 }
 
 .loom-btn-primary {
-  background: linear-gradient(135deg, #8a2be2, var(--accent-color));
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+  background: var(--accent-color);
+  color: var(--btn-text);
+  border: 1px solid var(--accent-color);
+  box-shadow: var(--shadow);
 }
 
 .loom-btn-primary:hover {
-  opacity: 0.95;
-  box-shadow: 0 4px 16px rgba(138, 43, 226, 0.45);
+  opacity: 0.88;
 }
 
 .loom-btn-secondary {
@@ -249,7 +269,7 @@
 
 .loom-btn-secondary:hover {
   background: var(--accent-light);
-  border-color: var(--accent-color);
+  border-color: var(--text-color);
 }
 
 /* Auth Layout */
@@ -265,18 +285,17 @@
 }
 
 .loom-github-logo {
-  color: var(--accent-color);
-  filter: drop-shadow(0 0 6px var(--accent-light));
+  color: var(--text-color);
 }
 
 /* Loading Spinner styling */
 .loom-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--accent-color);
+  border: 3.5px solid var(--border-color);
+  border-top-color: var(--text-color);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.85s linear infinite;
 }
 
 @keyframes spin {
@@ -366,48 +385,68 @@
   min-height: 0;
 }
 
-.loom-message {
+.loom-chat-row {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  max-width: 88%;
+  align-items: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
 }
 
-.loom-message-user {
-  align-self: flex-end;
+.loom-chat-row-user {
+  justify-content: flex-end;
 }
 
-.loom-message-assistant {
-  align-self: flex-start;
+.loom-chat-row-assistant {
+  justify-content: flex-start;
+}
+
+.loom-pfp-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--border-color);
+  background: var(--accent-light);
+  flex-shrink: 0;
 }
 
 .loom-message-content {
+  box-sizing: border-box;
   font-size: 13px;
   line-height: 1.45;
   padding: 10px 14px;
   border-radius: 12px;
+  max-width: 78%;
+  word-break: break-word;
 }
 
-.loom-message-user .loom-message-content {
+.loom-chat-row-user .loom-message-content {
   background: var(--accent-color);
-  color: #ffffff;
-  border-bottom-right-radius: 2px;
-  box-shadow: 0 2px 8px rgba(138, 43, 226, 0.15);
+  color: var(--btn-text);
+  border-top-right-radius: 2px;
+  box-shadow: var(--shadow);
 }
 
-.loom-message-assistant .loom-message-content {
+.loom-chat-row-assistant .loom-message-content {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  border-bottom-left-radius: 2px;
+  border-top-left-radius: 2px;
 }
 
-.loom-message-system .loom-message-content {
+.loom-chat-row-system {
+  justify-content: center;
+  width: 100%;
+}
+
+.loom-chat-row-system .loom-message-content {
   background: transparent;
   border: 1px dashed var(--border-color);
   color: var(--text-muted);
   text-align: center;
   font-size: 12px;
   border-radius: 8px;
+  max-width: 95%;
   width: 100%;
 }
 
@@ -425,8 +464,8 @@
   align-items: center;
   font-size: 10.5px;
   background: var(--accent-light);
-  color: var(--accent-color);
-  border: 1px solid rgba(138, 43, 226, 0.15);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   padding: 2px 6px;
   border-radius: 4px;
   text-decoration: none;
@@ -436,7 +475,7 @@
 
 .loom-citation-chip:hover {
   background: var(--accent-color);
-  color: #ffffff;
+  color: var(--btn-text);
   border-color: var(--accent-color);
 }
 
