@@ -322,7 +322,8 @@ function updateModeView() {
 
 // 4. Monitoring Navigation in GitHub SPA
 let lastPathname = location.pathname;
-const observer = new MutationObserver(() => {
+
+function handleLocationChange() {
   if (location.pathname !== lastPathname) {
     lastPathname = location.pathname;
     console.log("Loom detected navigation to:", lastPathname);
@@ -331,17 +332,15 @@ const observer = new MutationObserver(() => {
       updateModeView();
     }, 500);
   }
-});
-
-// Start observer once title is present
-function startNavigationObserver() {
-  const titleEl = document.querySelector('title');
-  if (titleEl) {
-    observer.observe(titleEl, { childList: true });
-  } else {
-    setTimeout(startNavigationObserver, 500);
-  }
 }
+
+// Hook into GitHub's SPA events
+document.addEventListener('turbo:load', handleLocationChange);
+document.addEventListener('turbo:render', handleLocationChange);
+document.addEventListener('pjax:end', handleLocationChange);
+
+// Fallback: Poll the pathname every 500ms to catch all SPA transitions
+setInterval(handleLocationChange, 500);
 
 // 5. Initialize Page Scripts
 function init() {
@@ -349,7 +348,6 @@ function init() {
   if (mode !== 'hidden') {
     injectLoom();
   }
-  startNavigationObserver();
 }
 
 if (document.readyState === 'loading') {

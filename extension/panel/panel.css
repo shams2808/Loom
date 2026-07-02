@@ -177,6 +177,7 @@
   overflow: hidden;
   padding: 16px;
   font-family: var(--font-family);
+  min-height: 0;
 }
 
 /* Card layout containers */
@@ -303,6 +304,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .loom-mode-view {
@@ -310,6 +312,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .loom-state-card {
@@ -325,6 +328,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .loom-chat-header {
@@ -359,6 +363,7 @@
   flex-direction: column;
   gap: 14px;
   margin-bottom: 12px;
+  min-height: 0;
 }
 
 .loom-message {
@@ -604,6 +609,7 @@
   overflow-y: auto;
   padding-right: 4px;
   margin-bottom: 16px;
+  min-height: 0;
 }
 
 .loom-results-actions {
