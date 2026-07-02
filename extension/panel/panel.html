@@ -53,13 +53,27 @@
 
         <!-- State 2: Indexing Progress -->
         <div class="loom-state-card" id="loom-delphi-indexing" style="display: none;">
-          <div class="loom-card">
+          <div class="loom-card" style="width: 100%;">
             <div class="loom-spinner"></div>
             <h4>Indexing Codebase...</h4>
             <p>We are cloning and parsing the repository files. Diffs, functions, and references are being stored locally.</p>
-            <div class="loom-progress-box">
-              <span id="loom-index-chunks">0</span> chunks processed so far
+            
+            <!-- Progress Bar -->
+            <div class="loom-progress-bar-container" style="width: 100%; height: 6px; background-color: var(--border-color); border-radius: 3px; overflow: hidden; margin: 8px 0;">
+              <div id="loom-index-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8a2be2, var(--accent-color)); transition: width 0.3s ease;"></div>
             </div>
+            
+            <div class="loom-progress-details" style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-muted); width: 100%; text-align: left;">
+              <div style="display: flex; justify-content: space-between;">
+                <span id="loom-index-batch-text">Batch 0 of 0 (0 files)</span>
+                <span id="loom-index-percent" style="font-weight: 700;">0%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span id="loom-index-eta">Estimating ETA...</span>
+                <span>Chunks: <span id="loom-index-chunks" style="font-weight: 700; color: var(--accent-color);">0</span></span>
+              </div>
+            </div>
+            
             <div class="loom-status-badge">status: <span id="loom-index-status-text">indexing</span></div>
           </div>
         </div>

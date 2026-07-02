@@ -32,10 +32,17 @@
       const chatInput = shadow.getElementById('loom-chat-input');
       if (chatInput) {
         chatInput.addEventListener('keydown', (e) => {
+          e.stopPropagation();
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             this.sendChatMessage();
           }
+        });
+        chatInput.addEventListener('keyup', (e) => {
+          e.stopPropagation();
+        });
+        chatInput.addEventListener('keypress', (e) => {
+          e.stopPropagation();
         });
       }
     },
@@ -69,7 +76,10 @@
           
           if (matchedRepo) {
             activeRepoId = matchedRepo.repo_id;
-            this.handleRepoStatus(matchedRepo.status, matchedRepo.chunk_count);
+            this.handleRepoStatus({
+              status: matchedRepo.status,
+              chunk_count: matchedRepo.chunk_count
+            });
           } else {
             // Not indexed yet
             this.showStateCard('unindexed');
@@ -102,19 +112,54 @@
     },
 
     // Handle states from backend
-    handleRepoStatus: function(status, chunkCount) {
+    handleRepoStatus: function(data) {
+      if (!data) return;
+      const status = data.status;
+      const chunkCount = data.chunk_count || 0;
+      const currentBatch = data.current_batch || 0;
+      const totalBatches = data.total_batches || 0;
+      const filesProcessed = data.files_processed || 0;
+
       const countEl = shadow.getElementById('loom-index-chunks');
       const statusTextEl = shadow.getElementById('loom-index-status-text');
 
-      if (countEl) countEl.textContent = chunkCount || 0;
+      if (countEl) countEl.textContent = chunkCount;
       if (statusTextEl) statusTextEl.textContent = status;
 
-      if (status === 'ready') {
-        this.stopPolling();
-        this.showStateCard('ready');
-      } else if (status === 'indexing' || status === 'pending') {
+      if (status === 'indexing' || status === 'pending') {
         this.showStateCard('indexing');
         this.startPollingStatus();
+
+        // Update progress bar & ETA details
+        const percent = totalBatches > 0 ? Math.round((currentBatch / totalBatches) * 100) : 0;
+        const progressFill = shadow.getElementById('loom-index-progress-fill');
+        const percentEl = shadow.getElementById('loom-index-percent');
+        const batchTextEl = shadow.getElementById('loom-index-batch-text');
+        const etaEl = shadow.getElementById('loom-index-eta');
+
+        if (progressFill) progressFill.style.width = `${percent}%`;
+        if (percentEl) percentEl.textContent = `${percent}%`;
+        if (batchTextEl) batchTextEl.textContent = `Batch ${currentBatch} of ${totalBatches} (${filesProcessed} files)`;
+
+        // Estimate remaining time (local ONNX MiniLM runs at ~0.25s per batch)
+        const remainingBatches = totalBatches - currentBatch;
+        if (remainingBatches > 0) {
+          const estimatedSeconds = Math.ceil(remainingBatches * 0.25);
+          if (estimatedSeconds >= 60) {
+            const mins = Math.floor(estimatedSeconds / 60);
+            const secs = estimatedSeconds % 60;
+            if (etaEl) etaEl.textContent = `~${mins}m ${secs}s remaining`;
+          } else if (estimatedSeconds > 2) {
+            if (etaEl) etaEl.textContent = `~${estimatedSeconds}s remaining`;
+          } else {
+            if (etaEl) etaEl.textContent = '< 2s remaining';
+          }
+        } else {
+          if (etaEl) etaEl.textContent = 'Finalizing...';
+        }
+      } else if (status === 'ready') {
+        this.stopPolling();
+        this.showStateCard('ready');
       } else {
         // failed or other
         this.stopPolling();
@@ -150,7 +195,7 @@
         if (response && response.success && response.result && response.result.ok) {
           const data = response.result.data;
           activeRepoId = data.repo_id;
-          this.handleRepoStatus(data.status, 0);
+          this.handleRepoStatus(data);
         } else {
           const errorMsg = (response && response.result && response.result.data && response.result.data.error) 
             ? response.result.data.error 
@@ -176,7 +221,7 @@
         }, (response) => {
           if (response && response.success && response.result && response.result.ok) {
             const data = response.result.data;
-            this.handleRepoStatus(data.status, data.chunk_count);
+            this.handleRepoStatus(data);
           } else {
             console.error("Error polling repo index status:", response);
             // Don't stop polling on single failure, server might be restarting
@@ -211,6 +256,15 @@
       if (log) {
         log.scrollTop = log.scrollHeight;
       }
+    },
+
+    getCurrentlyViewedFilePath: function() {
+      const pathname = window.location.pathname;
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts.length > 4 && parts[2] === 'blob') {
+        return parts.slice(4).join('/');
+      }
+      return null;
     },
 
     // Parse simple Markdown citations or references in answer text
@@ -266,6 +320,7 @@
       this.scrollToBottom();
 
       // 4. Send API query
+      const currentFile = this.getCurrentlyViewedFilePath();
       chrome.runtime.sendMessage({
         type: 'API_REQUEST',
         method: 'POST',
@@ -273,7 +328,8 @@
         body: {
           repo_id: activeRepoId,
           question: question,
-          conversation_id: activeConversationId
+          conversation_id: activeConversationId,
+          current_file: currentFile
         }
       }, (response) => {
         // Remove loading indicator
