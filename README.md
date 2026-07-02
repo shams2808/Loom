@@ -24,14 +24,14 @@ Navigating between a repo and a PR in the same tab (GitHub is a SPA) switches mo
 ## Architecture
 
 ```
-┌────────────────────────┐        HTTPS / JWT cookie        ┌──────────────────────────┐
-│   Chrome Extension      │ ───────────────────────────────▶ │   FastAPI Backend         │
-│   (Manifest V3)          │ ◀─────────────────────────────── │                          │
-│                          │              JSON                │  • GitHub OAuth           │
-│  • content.js (panel)    │                                   │  • Retrieval (Chroma)     │
-│  • background.js (relay) │                                   │  • LLM orchestration      │
-│  • Q&A + Review UI       │                                   │  • SQLite + Alembic       │
-└────────────────────────┘                                   └──────────────────────────┘
+┌─────────────────────────┐        HTTPS / JWT cookie         ┌──────────────────────────┐
+│   Chrome Extension      │ ───────────────────────────────▶ │   FastAPI Backend        │
+│   (Manifest V3)         │ ◀─────────────────────────────── │                          │
+│                         │              JSON                 │  • GitHub OAuth          │
+│  • content.js (panel)   │                                   │  • Retrieval (Chroma)    │
+│  • background.js (relay │                                   │  • LLM orchestration     │
+│  • Q&A + Review UI      │                                   │  • SQLite + Alembic      │
+└─────────────────────────┘                                   └──────────────────────────┘
 ```
 
 The retrieval layer is shared between both modes — code is chunked, embedded, and stored per-user in Chroma, then queried either for direct Q&A or to give the review model relevant context (similar logic, callers of changed functions, etc.).
