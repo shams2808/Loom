@@ -1,4 +1,4 @@
-// Loom Delphi (Q&A Mode) Controller
+// Loom QA (Q&A Mode) Controller
 // Manages repository status checking, indexing trigger, progress polling,
 // and Q&A chat loops inside the sidebar.
 
@@ -9,7 +9,7 @@
   let activeConversationId = null;
   let pollIntervalId = null;
 
-  const Delphi = {
+  const QA = {
     init: function(shadowRoot) {
       shadow = shadowRoot;
       this.bindEvents();
@@ -83,9 +83,9 @@
 
     // Show appropriate sub-view state cards
     showStateCard: function(state) {
-      const unindexedCard = shadow.getElementById('loom-delphi-unindexed');
-      const indexingCard = shadow.getElementById('loom-delphi-indexing');
-      const readyCard = shadow.getElementById('loom-delphi-ready');
+      const unindexedCard = shadow.getElementById('loom-qa-unindexed');
+      const indexingCard = shadow.getElementById('loom-qa-indexing');
+      const readyCard = shadow.getElementById('loom-qa-ready');
 
       if (unindexedCard) unindexedCard.style.display = 'none';
       if (indexingCard) indexingCard.style.display = 'none';
@@ -119,7 +119,7 @@
         // failed or other
         this.stopPolling();
         this.showStateCard('unindexed');
-        const unindexedDesc = shadow.querySelector('#loom-delphi-unindexed p');
+        const unindexedDesc = shadow.querySelector('#loom-qa-unindexed p');
         if (unindexedDesc) {
           unindexedDesc.textContent = `Indexing failed (status: ${status}). Please click below to try indexing again.`;
         }
@@ -332,5 +332,5 @@
   };
 
   // Export globally to window
-  window.LoomDelphi = Delphi;
+  window.LoomQA = QA;
 })();

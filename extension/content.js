@@ -3,22 +3,22 @@
 // URL changes monitoring (GitHub SPA), and mode switching.
 
 let shadowRoot = null;
-let currentMode = 'hidden'; // 'delphi' | 'cassandra' | 'hidden'
+let currentMode = 'hidden'; // 'qa' | 'review' | 'hidden'
 let isSidebarOpen = false;
 
 // 1. URL Detection & Mode Mapping
 function detectPageMode(pathname) {
-  // PR page → Cassandra mode
+  // PR page → Review mode
   if (/^\/[^/]+\/[^/]+\/pull\/\d+/.test(pathname)) {
-    return 'cassandra';
+    return 'review';
   }
-  // Repo page (home, code, file view, commits) → Delphi mode
+  // Repo page (home, code, file view, commits) → QA mode
   const pathParts = pathname.split('/').filter(Boolean);
   if (pathParts.length >= 2) {
     // Exclude general GitHub paths
     const excluded = ['settings', 'notifications', 'explore', 'trending', 'sponsors', 'marketplace', 'issues', 'pulls'];
     if (!excluded.includes(pathParts[0])) {
-      return 'delphi';
+      return 'qa';
     }
   }
   return 'hidden';
@@ -77,12 +77,12 @@ async function injectLoom() {
   // Setup Event Listeners inside Shadow DOM
   setupPanelListeners();
 
-  // Initialize Delphi & Cassandra modules
-  if (window.LoomDelphi && typeof window.LoomDelphi.init === 'function') {
-    window.LoomDelphi.init(shadowRoot);
+  // Initialize QA & Review modules
+  if (window.LoomQA && typeof window.LoomQA.init === 'function') {
+    window.LoomQA.init(shadowRoot);
   }
-  if (window.LoomCassandra && typeof window.LoomCassandra.init === 'function') {
-    window.LoomCassandra.init(shadowRoot);
+  if (window.LoomReview && typeof window.LoomReview.init === 'function') {
+    window.LoomReview.init(shadowRoot);
   }
 
   // Initial Auth Check & Render
@@ -107,19 +107,25 @@ function injectToggleBadge() {
     <div style="
       background: #8a2be2;
       color: #ffffff;
-      padding: 12px 6px;
+      padding: 10px 8px;
       border-radius: 8px 0 0 8px;
       box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       font-weight: bold;
       font-size: 10px;
       letter-spacing: 1px;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
       transition: all 0.2s ease-in-out;
       user-select: none;
     ">
-      🧵 LOOM
+      <svg viewBox="0 0 100 100" width="16" height="16" style="fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round;">
+        <path d="M 30,30 C 15,45 15,55 30,70 C 45,85 55,85 70,70 C 85,55 85,45 70,30 C 55,15 45,15 30,30 Z"/>
+        <path d="M 70,30 C 85,45 85,55 70,70 C 55,85 45,85 30,70 C 15,55 15,45 30,30 C 45,15 55,15 70,30 Z"/>
+      </svg>
+      <div style="writing-mode: vertical-rl; text-orientation: mixed;">LOOM</div>
     </div>
   `;
 
@@ -269,14 +275,14 @@ function updateModeView() {
   const mode = detectPageMode(window.location.pathname);
   currentMode = mode;
 
-  const delphiSection = shadowRoot.getElementById('loom-delphi-mode');
-  const cassandraSection = shadowRoot.getElementById('loom-cassandra-mode');
+  const qaSection = shadowRoot.getElementById('loom-qa-mode');
+  const reviewSection = shadowRoot.getElementById('loom-review-mode');
   const hiddenSection = shadowRoot.getElementById('loom-hidden-mode');
   const repoNameEl = shadowRoot.getElementById('loom-repo-name');
 
   // Hide all first
-  if (delphiSection) delphiSection.style.display = 'none';
-  if (cassandraSection) cassandraSection.style.display = 'none';
+  if (qaSection) qaSection.style.display = 'none';
+  if (reviewSection) reviewSection.style.display = 'none';
   if (hiddenSection) hiddenSection.style.display = 'none';
 
   // If page is hidden, hide the entire sidebar wrapper/toggle
@@ -301,15 +307,15 @@ function updateModeView() {
     repoNameEl.textContent = repoName || 'Loom Workspace';
   }
 
-  if (mode === 'delphi') {
-    if (delphiSection) delphiSection.style.display = 'flex';
-    if (window.LoomDelphi && typeof window.LoomDelphi.onActivate === 'function') {
-      window.LoomDelphi.onActivate(repoName);
+  if (mode === 'qa') {
+    if (qaSection) qaSection.style.display = 'flex';
+    if (window.LoomQA && typeof window.LoomQA.onActivate === 'function') {
+      window.LoomQA.onActivate(repoName);
     }
-  } else if (mode === 'cassandra') {
-    if (cassandraSection) cassandraSection.style.display = 'flex';
-    if (window.LoomCassandra && typeof window.LoomCassandra.onActivate === 'function') {
-      window.LoomCassandra.onActivate(repoName);
+  } else if (mode === 'review') {
+    if (reviewSection) reviewSection.style.display = 'flex';
+    if (window.LoomReview && typeof window.LoomReview.onActivate === 'function') {
+      window.LoomReview.onActivate(repoName);
     }
   }
 }

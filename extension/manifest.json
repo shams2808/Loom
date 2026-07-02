@@ -21,8 +21,8 @@
         "https://github.com/*"
       ],
       "js": [
-        "panel/delphi.js",
-        "panel/cassandra.js",
+        "panel/qa.js",
+        "panel/review.js",
         "content.js"
       ],
       "run_at": "document_idle"

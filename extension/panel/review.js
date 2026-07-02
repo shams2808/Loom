@@ -1,4 +1,4 @@
-// Loom Cassandra (PR Review Mode) Controller
+// Loom Review (PR Review Mode) Controller
 // Manages scraping diffs from the GitHub page, executing reviews,
 // rendering summary statistics, and inserting inline comment cards into diff tables.
 
@@ -6,13 +6,12 @@
   let shadow = null;
   let currentRepoName = null;
   let activeRepoId = null;
-  let extractedDiffData = null;
 
   // Loom Icon SVG for inline comments
   const LOOM_SVG_ICON = `
-    <svg class="loom-inline-icon" viewBox="0 0 128 128" width="14" height="14" style="display:inline-block; vertical-align: middle;">
-      <path d="M30 90 C 20 50, 100 20, 100 64 C 100 100, 40 100, 64 64 C 80 40, 110 80, 80 100" stroke="#a372ff" stroke-width="12" fill="none" stroke-linecap="round"/>
-      <circle cx="64" cy="64" r="10" fill="#8a2be2" />
+    <svg class="loom-inline-icon" viewBox="0 0 100 100" width="14" height="14" style="display:inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round;">
+      <path d="M 30,30 C 15,45 15,55 30,70 C 45,85 55,85 70,70 C 85,55 85,45 70,30 C 55,15 45,15 30,30 Z"/>
+      <path d="M 70,30 C 85,45 85,55 70,70 C 55,85 45,85 30,70 C 15,55 15,45 30,30 C 45,15 55,15 70,30 Z"/>
     </svg>
   `;
 
@@ -200,7 +199,7 @@
 
     // 1. Scan code lines globally
     const codeCells = document.querySelectorAll(".diff-text-inner, .blob-code-inner, code.diff-text, td.diff-text-cell, .blob-code");
-    console.log(`[Loom Cassandra] Found ${codeCells.length} code cells in page DOM.`);
+    console.log(`[Loom Review] Found ${codeCells.length} code cells in page DOM.`);
     
     codeCells.forEach((codeCell) => {
       let container = codeCell.parentElement;
@@ -441,7 +440,7 @@
     });
   }
 
-  const Cassandra = {
+  const Review = {
     init: function(shadowRoot) {
       shadow = shadowRoot;
       injectHostStyles();
@@ -475,7 +474,7 @@
       currentRepoName = repoName;
       activeRepoId = null;
 
-      // Reset Cassandra display states
+      // Reset display states
       this.toggleStateCards('initial');
 
       // Check if current repo is indexed to set context-aware notice
@@ -509,9 +508,9 @@
     },
 
     toggleStateCards: function(state) {
-      const initial = shadow.getElementById('loom-cassandra-initial');
-      const loading = shadow.getElementById('loom-cassandra-loading');
-      const results = shadow.getElementById('loom-cassandra-results');
+      const initial = shadow.getElementById('loom-review-initial');
+      const loading = shadow.getElementById('loom-review-loading');
+      const results = shadow.getElementById('loom-review-results');
 
       if (initial) initial.style.display = 'none';
       if (loading) loading.style.display = 'none';
@@ -661,5 +660,5 @@
   };
 
   // Export globally to window
-  window.LoomCassandra = Cassandra;
+  window.LoomReview = Review;
 })();
