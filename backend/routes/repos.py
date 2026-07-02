@@ -35,8 +35,8 @@ async def get_github_repos(current_user: User = Depends(get_current_user)):
             detail="Failed to decrypt authentication credentials."
         )
 
-    # Fetch both public and private repositories owned by the user
-    url = "https://api.github.com/user/repos?per_page=100&sort=updated&type=owner"
+    # Fetch repositories owned, collaborated, or member of organizations
+    url = "https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/vnd.github.v3+json",
